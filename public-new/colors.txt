@@ -1,0 +1,7 @@
+ * dunkelgrau 605d6c
+ * blau-grau 3f3a44
+ * helleres grau 758183
+ * hellblau d4e3f1
+ * mittelblau b6d2e3
+ * mint 98bdbe
+ * hellmint bde9e7

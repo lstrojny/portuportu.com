@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<title></title>
+<head>
+<link type=text/css href=assets/css/style.css rel=stylesheet>
+<meta http-equiv=content-type content="text/html; charset=UTF-8">
+</head>
+
+
+<header>
+  <h1><span>Portu <em>(48° 09´ N  11° 35´ O)</em></span></h1>
+  <p>Coming Soon</p>
+</header>
+
+<nav>
+  <ol>
+    <li>
+      <a href="#"><span class="title">Gedachtes</span><br><span class="subtitle">Die Reise beginnt</span></a>
+      <ol>
+        <li><a href="#">Konzept</a></li>
+        <li><a href="#">Symbolik</a></li>
+        <li><a href="#">Farben</a></li>
+        <li><a href="#">Materialien</a></li>
+      </ol>
+    </li>
+    <li>
+        <a href="#"><span class="title">Gemaltes</span><br><span class="subtitle">Der Hafen ist in Sicht</span></a>
+      <ol>
+        <li><a href="#">Entwürfe</a></li>
+        <li><a href="#">Silloutten</a></li>
+      </ol>
+    </li>
+    <li>
+      <a href="#"><span class="title">Geknipstes</span><br><span class="subtitle">Der Pier wird betreten</span></a>
+      <ol>
+        <li><a href="#">Imageshooting</a></li>
+        <li><a href="#">Produktshooting</a></li>
+        <li><a href="#">Film</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+<article class=wide>
+  <div class="gallery animated">
+
+  </div>
+</article>
+
+<footer>
+  <ol>
+    <li><a href="#">Impressum</a></li>
+    <li><a href="#">About</a></li>
+    <li><a href="#">Whatever</a></li>
+  </ol>
+</footer>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js" type="text/javascript"></script>
+<script>
+var portu = {};
+
+portu.Gallery = function(n, images) {
+    this._node = n;
+    this._leftOffset = -500;
+    this._images = images;
+    this._zIndex = this._images.length;
+    this._offscreen = -900;
+    this._cnd = 0;
+
+    this._loadImage = function(idx, url) {
+        $(this._node).append(
+                $(new Image())
+                    .load($.proxy(this._onImageLoad, this))
+                    .attr('src', url)
+        );
+    };
+
+    this._onImageLoad = function(evt) {
+        var img = evt.target;
+        $(img).css('left', this._leftOffset);
+
+        this._animate(img);
+
+        if (this._leftOffset + $(img).width() < $(window).width()) {
+            this._leftOffset += $(img).width();
+        } else {
+            this._leftOffset = 0;
+        }
+    }
+
+    this._animate = function(img) {
+
+        $(img).animate(
+            {
+                left: $(img).offset().left + $(img).width() / 2 > $(window).width() / 2 ? this._offscreen : $(window).width(),
+                opacity: (this._cnt % 2 == 0.5) ? 1 : 0.5
+            },
+            {
+                duration: Math.ceil(Math.random() * 3) * 20000,
+                complete: $.proxy(function() {
+                    return this._onAnimationComplete(img);
+                }, this),
+                easing: 'linear'
+            }
+        );
+        $(img).mouseover($.proxy(this._onImageFocus, this));
+        this._cnt += 1;
+    };
+
+    this._onAnimationComplete = function(img) {
+        img = $(img);
+        var leftOffscreen = img.offset().left + img.width() <= 0;
+        var rightOffscreen = img.offset().left >= $(window).width();
+        if (leftOffscreen || rightOffscreen) {
+            img.css({
+                opacity: (img.css('opacity') == 0.5 ? 1 : 0.5),
+                zIndex: img.css('z-index') === 9000 ? 0 : 9000
+            });
+        }
+        this._animate(img);
+    };
+
+    this._onImageFocus = function(evt) {
+        var img = $(evt.target);
+        var originalOpacity = img.css('opacity');
+        img.stop()
+           .css({zIndex: 9001})
+           .animate({opacity: 1}, 1000)
+           .mouseout($.proxy(function(evt) { this._onImageLostFocus.call(this, evt, originalOpacity); }, this));
+    };
+
+    this._onImageLostFocus = function(evt, originalOpacity) {
+        $(evt.target).stop()
+                     .animate({opacity: originalOpacity}, 2000)
+                     .css('z-index', 9000);
+        this._animate(evt.target);
+    },
+
+    $(this._images).each($.proxy(this._loadImage, this));
+};
+
+$(".gallery.animated").each(function(idx, domNode) {
+    var images = [];
+    for (var a = 1; a <= 20; a++) {
+        images.push('assets/img/koko/400/img_' + a + '.jpg');
+    }
+    new portu.Gallery(domNode, images);
+});
+</script>
